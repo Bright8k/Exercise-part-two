@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import HomeScreen from "./components/HomeScreen";
-import DurationScreen from "./screens/DurationScreen";
-import RepetitionScreen from "./screens/RepetitionScreen";
+import RepetitionExercise from './components/RepetitionExercise';
+import DurationExercise from './components/DurationExercise';
 
+const exercises = [
+  { name: 'Push-ups', type: 'repetition' },
+  { name: 'Jumping Jacks', type: 'duration' },
+];
 
 function HomeScreen() {
   return (
@@ -32,7 +35,7 @@ function DurationScreen() {
 
   return (
     <div>
-      <h1>Duration Exercise</h1>
+      <h1>Running</h1>
       <p>Time: {time} seconds</p>
       <button onClick={() => setRunning(false)}>Stop Timer</button>
       <button onClick={() => navigate("/")}>Back</button>
@@ -46,7 +49,7 @@ function RepetitionScreen() {
 
   return (
     <div>
-      <h1>Repetition Exercise</h1>
+      <h1>Pushups</h1>
       <p>Reps: {reps}</p>
       <button onClick={() => setReps(reps + 1)}>+</button>
       <button onClick={() => setReps(reps - 1)}>-</button>
@@ -55,16 +58,27 @@ function RepetitionScreen() {
   );
 }
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/DurationExercise" element={<DurationScreen />} />
-        <Route path="/RepetitionExercise" element={<RepetitionScreen />} />
-      </Routes>
-    </Router>
-  );
-}
+export default function App() {
+  const [selectedExercise, setSelectedExercise] = useState(null);
 
-export default App;
+  const renderExercise = () => {
+    if (!selectedExercise) return (
+      <div>
+        <h1>Choose an Exercise</h1>
+        {exercises.map((exercise) => (
+          <button key={exercise.name} onClick={() => setSelectedExercise(exercise)}>
+            {exercise.name}
+          </button>
+        ))}
+      </div>
+    );
+
+    return selectedExercise.type === 'repetition' ? (
+      <RepetitionExercise name={selectedExercise.name} />
+    ) : (
+      <DurationExercise name={selectedExercise.name} />
+    );
+  };
+
+  return <div>{renderExercise()}</div>;
+}
