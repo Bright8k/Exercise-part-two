@@ -1,8 +1,8 @@
 {
   "name": "exercise",
   "version": "0.1.0",
-   "homepage": "https://bright8k.github.io/Exercise-part-two",
-  "private": true,
+  "homepage": "https://bright8k.github.io/Exercise-part-two",
+  "private": "false",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
