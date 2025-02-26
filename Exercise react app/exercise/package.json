@@ -1,7 +1,7 @@
 {
   "name": "exercise",
   "version": "0.1.0",
-   "homepage": "https://<github-username>.github.io/<project-repo>",
+   "homepage": "https://bright8k.github.io/Exercise-part-two",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
