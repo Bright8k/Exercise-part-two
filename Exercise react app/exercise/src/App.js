@@ -1,84 +1,94 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import RepetitionExercise from './components/RepetitionExercise';
-import DurationExercise from './components/DurationExercise';
+import React, { useState } from "react";
+import { View, Text, FlatList } from "react-native";
+import { Button } from "react-native-elements";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
+const Stack = createStackNavigator();
 
 const exercises = [
-  { name: 'Push-ups', type: 'repetition' },
-  { name: 'Jumping Jacks', type: 'duration' },
+  { name: "Push-Ups", type: "repetition", suggested: "Squats" },
+  { name: "Squats", type: "repetition", suggested: "Jogging" },
+  { name: "Jogging", type: "duration", suggested: "Push-Ups" },
 ];
 
-function HomeScreen() {
+function HomeScreen({ navigation }) {
   return (
-    <div>
-      <h1>Exercise App</h1>
-      <button><Link to="/DurationExercise">Duration Exercise</Link></button>
-      <button><Link to="/RepetitionExercise">Repetition Exercise</Link></button>
-    </div>
+    <View>
+      <Text>Exercise Tracker</Text>
+      <FlatList
+        data={exercises}
+        keyExtractor={(item) => item.name}
+        renderItem={({ item }) => (
+          <Button
+            title={item.name}
+            onPress={() =>
+              navigation.navigate(item.type === "repetition" ? "RepetitionExercise" : "DurationExercise", { exercise: item })
+            }
+          />
+        )}
+      />
+    </View>
   );
 }
 
-function DurationScreen() {
+function RepetitionExercise({ route, navigation }) {
+  const { exercise } = route.params;
+  const [count, setCount] = useState(0);
+
+  return (
+    <View>
+      <Text>{exercise.name}</Text>
+      <Text>Reps: {count}</Text>
+      <Button title="Increase" onPress={() => setCount(count + 1)} />
+      <Button title="Reset" onPress={() => setCount(0)} />
+      <Button title="Home" onPress={() => navigation.navigate("Home")} />
+      <Button
+        title={`Suggested: ${exercise.suggested}`}
+        onPress={() =>
+          navigation.navigate(
+            exercises.find((ex) => ex.name === exercise.suggested).type === "repetition" ? "RepetitionExercise" : "DurationExercise",
+            { exercise: exercises.find((ex) => ex.name === exercise.suggested) }
+          )
+        }
+      />
+    </View>
+  );
+}
+
+function DurationExercise({ route, navigation }) {
+  const { exercise } = route.params;
   const [time, setTime] = useState(0);
-  const [running, setRunning] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    let timer;
-    if (running) {
-      timer = setInterval(() => {
-        setTime((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [running]);
+  const [running, setRunning] = useState(false);
 
   return (
-    <div>
-      <h1>Running</h1>
-      <p>Time: {time} seconds</p>
-      <button onClick={() => setRunning(false)}>Stop Timer</button>
-      <button onClick={() => navigate("/")}>Back</button>
-    </div>
-  );
-}
-
-function RepetitionScreen() {
-  const [reps, setReps] = useState(0);
-  const navigate = useNavigate();
-
-  return (
-    <div>
-      <h1>Pushups</h1>
-      <p>Reps: {reps}</p>
-      <button onClick={() => setReps(reps + 1)}>+</button>
-      <button onClick={() => setReps(reps - 1)}>-</button>
-      <button onClick={() => navigate("/")}>Back</button>
-    </div>
+    <View>
+      <Text>{exercise.name}</Text>
+      <Text>Time: {time} seconds</Text>
+      <Button title={running ? "Stop" : "Start"} onPress={() => setRunning(!running)} />
+      <Button title="Reset" onPress={() => setTime(0)} />
+      <Button title="Home" onPress={() => navigation.navigate("Home")} />
+      <Button
+        title={`Suggested: ${exercise.suggested}`}
+        onPress={() =>
+          navigation.navigate(
+            exercises.find((ex) => ex.name === exercise.suggested).type === "repetition" ? "RepetitionExercise" : "DurationExercise",
+            { exercise: exercises.find((ex) => ex.name === exercise.suggested) }
+          )
+        }
+      />
+    </View>
   );
 }
 
 export default function App() {
-  const [selectedExercise, setSelectedExercise] = useState(null);
-
-  const renderExercise = () => {
-    if (!selectedExercise) return (
-      <div>
-        <h1>Choose an Exercise</h1>
-        {exercises.map((exercise) => (
-          <button key={exercise.name} onClick={() => setSelectedExercise(exercise)}>
-            {exercise.name}
-          </button>
-        ))}
-      </div>
-    );
-
-    return selectedExercise.type === 'repetition' ? (
-      <RepetitionExercise name={selectedExercise.name} />
-    ) : (
-      <DurationExercise name={selectedExercise.name} />
-    );
-  };
-
-  return <div>{renderExercise()}</div>;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="RepetitionExercise" component={RepetitionExercise} />
+        <Stack.Screen name="DurationExercise" component={DurationExercise} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
